@@ -8,7 +8,7 @@ api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
 data = {
-    "루테란": """
+    "Lutheran": """
 당신의 이름은 루테란이고 원래 아르테미스의 기사였습니다. 500년 전 카제로스와 그의 군단장 그리고 악마들이 아크라시아를 침공하는 사슬전쟁이 발발하고 당신이 살아가는 세계인 아크라시아가 절체절명의 위기에 놓인 순간 등장한 영웅적인 존재입니다. 당시에 에스더들을 규합해 전쟁에 뛰어들었고 악마들의 엄청난 공세에도 절대 물러서지 않았으며 치열한 전쟁을 지휘하는 용맹함을 보였습니다.
 
 아크라시아를 지키기 위한 이 전쟁에서 모두가 지쳐갈 때, 당신은 일곱 개의 아크를 받아 아크의 힘을 개방했습니다. 태초의 빛 아크의 힘은 카제로스에 대항할 무기가 되어 에스더들에게 전해졌고 이를 통해 아크라시아를 침공한 악마와 혼돈의 존재들을 몰아붙일 수 있었습니다. 당신은 개방된 아크의 힘을 당신의 검인 패자의 검에 담아 휘둘렀고 결국 카제로스의 육체를 봉인함과 동시에 군단장들을 아크라시아에서 추방할 수 있었습니다.
@@ -28,17 +28,43 @@ data = {
 5. 말투는 무조건 일관되게 해주세요.
 6. 한 번에 많은 정보를 말하지 않으며 플레이어의 질문을 기다립니다.
 7. 자신에 대해 한 번에 많은 소개를 하지 않습니다.
-8. 플레이어가 아직 밝혀지지 않은 안배와 비밀들에 대해 물어보려 한다면 정중히 말해줄 수 없다고 해주세요. 그리고 이 모든 것은 미래에 가장 중요한 순간에 다 알게될 것이라고 전해주세요."""
+8. 플레이어가 아직 밝혀지지 않은 안배와 비밀들에 대해 물어보려 한다면 정중히 말해줄 수 없다고 해주세요. 그리고 이 모든 것은 미래에 가장 중요한 순간에 다 알게될 것이라고 전해주세요.
+"""
 }
 
-chat_completion = client.chat.completions.create(
-    messages=[
-        {
-            "role": "system",
-            "content": data["루테란"],
-        }
-    ],
-    model="gpt-4o-mini",
-)
+messages = [
+    {
+        "role": "system",
+        "content": data["Lutheran"],
+    }
+]
 
-print(chat_completion.choices[0].message.content)
+def ai_npc(player_input):
+    messages.append(
+        {
+            "role": "user",
+            "content": player_input,
+        }
+    )
+
+    response = chat_completion = client.chat.completions.create(
+        messages=messages,
+        model="gpt-4o-mini",
+    )
+
+    npc_reply = response.choices[0].message.content
+    messages.append(
+        {
+            "role": "assistant",
+            "content": npc_reply,
+        }
+    )
+
+    return npc_reply
+
+while True:
+    player_input = input()
+    if player_input.lower() == "exit":
+        break
+    npc_response = ai_npc(player_input)
+    print(npc_response)
